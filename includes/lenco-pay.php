@@ -3,9 +3,8 @@
 require_once plugin_dir_path(__FILE__) . 'class-wc-lenco-payment-gateway.php';
 
 // Enqueue Lenco script and custom JS
-function enqueue_lenco_scripts()
-{
-    if (is_checkout()) {
+function enqueue_lenco_scripts() {
+    if (is_checkout() || is_cart()) {
         wp_enqueue_script('lenco-inline', 'https://pay.sandbox.lenco.co/js/v1/inline.js', array(), null, true);
 
         // Localize script with necessary data
@@ -24,6 +23,7 @@ function enqueue_lenco_scripts()
     }
 }
 add_action('wp_enqueue_scripts', 'enqueue_lenco_scripts');
+add_action('enqueue_block_assets', 'enqueue_lenco_scripts');
 
 // Change the Place Order button text
 function change_place_order_button_text()
@@ -33,107 +33,108 @@ function change_place_order_button_text()
 add_filter('woocommerce_order_button_text', 'change_place_order_button_text');
 
 // Hook to handle LencoPay initiation
-add_action('woocommerce_checkout_before_customer_details', 'initiate_lenco_payment_script');
-function initiate_lenco_payment_script()
-{
+function initiate_lenco_payment_script() {
     if (is_checkout()) {
         global $woocommerce;
 ?>
-    <script type="text/javascript">
-        jQuery(function($) {
-            // Function to initiate LencoPay payment
-            function initiateLencoPayment() {
-                var email = $('input#billing_email').val();
-                var amount = lenco_params.total_amount;
-                var currency = '<?php echo esc_js(get_option('woocommerce_currency')); ?>';
-                var customer = {
-                    firstName: $('input#billing_first_name').val(),
-                    lastName: $('input#billing_last_name').val(),
-                    phone: $('input#billing_phone').val()
-                };
+<script type="text/javascript">
+jQuery(function($) {
+    // Function to initiate LencoPay payment
+    function initiateLencoPayment() {
+        var email = $('input#billing_email').val();
+        var amount = lenco_params.total_amount;
+        var currency = '<?php echo esc_js(get_option('woocommerce_currency')); ?>';
+        var customer = {
+            firstName: $('input#billing_first_name').val(),
+            lastName: $('input#billing_last_name').val(),
+            phone: $('input#billing_phone').val()
+        };
 
-                // Create order via AJAX before payment
-                $.ajax({
-                    type: 'POST',
-                    url: '<?php echo admin_url('admin-ajax.php'); ?>',
-                    data: {
-                        action: 'create_order_before_payment',
-                        email: email,
-                        amount: amount,
-                        currency: currency,
-                        customer: customer
-                    },
-                    success: function(response) {
-                        console.log('Order created before payment: ', response.data);
-                        var order_id = response.data;
-                        // Call LencoPay payment widget after order creation
-                        LencoPay.getPaid({
-                            key: lenco_params.public_key,
-                            reference: 'ref-' + Date.now(),
-                            email: email,
-                            amount: amount,
-                            currency: currency,
-                            customer: customer,
-                            onSuccess: function(response) {
-                                const reference = response.reference;
-                                console.log('Payment successful ', {
-                                    response
-                                });
+        // Create order via AJAX before payment
+        $.ajax({
+            type: 'POST',
+            url: '<?php echo admin_url('admin-ajax.php'); ?>',
+            data: {
+                action: 'create_order_before_payment',
+                email: email,
+                amount: amount,
+                currency: currency,
+                customer: customer
+            },
+            success: function(response) {
+                console.log('Order created before payment: ', response.data);
+                var order_id = response.data;
+                // Call LencoPay payment widget after order creation
+                LencoPay.getPaid({
+                    key: lenco_params.public_key,
+                    reference: 'ref-' + Date.now(),
+                    email: email,
+                    amount: amount,
+                    currency: currency,
+                    customer: customer,
+                    onSuccess: function(response) {
+                        const reference = response.reference;
+                        console.log('Payment successful ', { response });
 
-                                // Update order after payment via AJAX
-                                $.ajax({
-                                    type: 'POST',
-                                    url: '<?php echo admin_url('admin-ajax.php'); ?>',
-                                    data: {
-                                        action: 'update_order_after_payment',
-                                        order_id: order_id,
-                                        reference: reference
-                                    },
-                                    success: function(response) {
-                                        console.log('Order updated after payment ', {
-                                            response
-                                        });
+                        // Update order after payment via AJAX
+                        $.ajax({
+                            type: 'POST',
+                            url: '<?php echo admin_url('admin-ajax.php'); ?>',
+                            data: {
+                                action: 'update_order_after_payment',
+                                order_id: order_id,
+                                reference: reference
+                            },
+                            success: function(response) {
+                                console.log('Order updated after payment ', { response });
 
-                                        // window.location.href = '<?php echo wc_get_checkout_url(); ?>';
-                                    },
-                                    error: function(error) {
-                                        console.error('Error updating order: ' + error);
-                                        // Handle error scenario
-                                    }
-                                });
+                                window.location.href = '<?php echo wc_get_checkout_url(); ?>';
                             },
-                            onError: function(error) {
-                                console.error('Payment error: ' + error.message);
-                            },
-                            onClose: function() {
-                                console.log('Payment modal closed');
-                            },
-                            onConfirmationPending: function() {
-                                console.log('Payment pending confirmation');
+                            error: function(error) {
+                                console.error('Error updating order: ' + error);
+                                // Handle error scenario
                             }
                         });
                     },
-                    error: function(error) {
-                        console.error('Error creating order before payment: ' + error);
+                    onError: function(error) {
+                        console.error('Payment error: ' + error.message);
+                    },
+                    onClose: function() {
+                        console.log('Payment modal closed');
+                    },
+                    onConfirmationPending: function() {
+                        console.log('Payment pending confirmation');
                     }
                 });
+            },
+            error: function(error) {
+                console.error('Error creating order before payment: ' + error);
             }
-            // Trigger payment initiation on Place Order button click
-            $('body').on('click', '#place_order', function(e) {
-                e.preventDefault();
-                initiateLencoPayment();
-            });
         });
-    </script>
+    }
+
+    // Trigger payment initiation on Place Order button click for classic checkout
+    $('body').on('click', '#place_order', function(e) {
+        e.preventDefault();
+        initiateLencoPayment();
+    });
+
+    // Trigger payment initiation for block checkout
+    wp.hooks.addAction('experimental/woocommerce-blocks-checkout/express-payment-request-completed', 'my-namespace', function() {
+        initiateLencoPayment();
+    });
+});
+</script>
 <?php
     }
 }
+add_action('woocommerce_checkout_before_customer_details', 'initiate_lenco_payment_script');
+add_action('woocommerce_blocks_enqueue_cart_and_checkout_scripts', 'initiate_lenco_payment_script');
 
 // AJAX action to create WooCommerce order before payment
 add_action('wp_ajax_create_order_before_payment', 'create_order_before_payment');
 add_action('wp_ajax_nopriv_create_order_before_payment', 'create_order_before_payment');
-function create_order_before_payment()
-{
+function create_order_before_payment() {
     if (!empty($_POST['email']) && !empty($_POST['amount']) && !empty($_POST['currency'])) {
         // Get customer email, amount, currency, and customer details
         $email = sanitize_email($_POST['email']);
@@ -155,7 +156,6 @@ function create_order_before_payment()
         $order->save();
         $order_id = $order->get_id();
 
-
         // Return the order ID
         wp_send_json_success($order_id);
     } else {
@@ -164,11 +164,9 @@ function create_order_before_payment()
     }
 }
 
-// AJAX action to update WooCommerce order after successful payment
 add_action('wp_ajax_update_order_after_payment', 'update_order_after_payment');
 add_action('wp_ajax_nopriv_update_order_after_payment', 'update_order_after_payment');
-function update_order_after_payment()
-{
+function update_order_after_payment() {
     if (!empty($_POST['order_id']) && !empty($_POST['reference'])) {
         // Get order ID and payment reference
         $order_id = intval($_POST['order_id']);
