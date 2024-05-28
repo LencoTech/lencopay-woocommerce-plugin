@@ -1,6 +1,6 @@
 <?php
-// Exit if accessed directly.
-if (!defined('ABSPATH')) {
+// Exit if accessed directly
+if ( ! defined( 'ABSPATH' ) ) {
     exit;
 }
 
@@ -31,12 +31,6 @@ function lenco_payment_gateway_settings() {
             'description' => 'Enter your Lenco public key.',
             'default' => '',
         ),
-        'secret_key' => array(
-            'title' => 'Lenco Secret Key',
-            'type' => 'text',
-            'description' => 'Enter your Lenco secret key.',
-            'default' => '',
-        ),
         'channels' => array(
             'title' => 'Payment Channels',
             'type' => 'multiselect',
@@ -46,12 +40,6 @@ function lenco_payment_gateway_settings() {
                 'mobile-money' => 'Mobile Money',
             ),
             'default' => array('card', 'mobile-money'),
-        ),
-        'currency' => array(
-            'title' => 'Currency',
-            'type' => 'text',
-            'description' => 'Currency code (e.g., USD, ZMW).',
-            'default' => 'ZMW',
         ),
         'success_url' => array(
             'title' => 'Success Redirect URL',
@@ -67,4 +55,3 @@ function lenco_payment_gateway_settings() {
         ),
     );
 }
-?>
