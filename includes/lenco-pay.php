@@ -87,17 +87,18 @@ jQuery(function($) {
                             },
                             success: function(response) {
                                 console.log('Order updated after payment ', { response });
-
-                                window.location.href = '<?php echo wc_get_checkout_url(); ?>';
+                                // Add success redirect url here
                             },
                             error: function(error) {
                                 console.error('Error updating order: ' + error);
-                                // Handle error scenario
+                                alert('Error updating order, please contact website administrator');
+                                
                             }
                         });
                     },
                     onError: function(error) {
                         console.error('Payment error: ' + error.message);
+                        // Add failed redirect url here
                     },
                     onClose: function() {
                         console.log('Payment modal closed');
@@ -108,7 +109,7 @@ jQuery(function($) {
                 });
             },
             error: function(error) {
-                console.error('Error creating order before payment: ' + error);
+                alert('Error creating order before payment, please try again');
             }
         });
     }
