@@ -16,7 +16,7 @@ function lenco_payment_gateway_settings() {
             'title' => 'Title',
             'type' => 'text',
             'description' => 'Title that the user sees during checkout.',
-            'default' => 'Lenco Payment',
+            'default' => 'Lenco Pay',
             'desc_tip' => true,
         ),
         'description' => array(
@@ -29,14 +29,14 @@ function lenco_payment_gateway_settings() {
             'title' => 'Lenco Public Key',
             'type' => 'text',
             'description' => 'Enter your Lenco public key.',
-            'default' => '',
+            'default' => 'pub-88dd921c0ecd73590459a1dd5a9343c77db0f3c344f222b9',
         ),
         'channels' => array(
             'title' => 'Payment Channels',
             'type' => 'multiselect',
             'description' => 'Select payment channels to be enabled (card, mobile-money).',
             'options' => array(
-                'card' => 'Card',
+                'card' => 'Card (Visa, Mastercard)',
                 'mobile-money' => 'Mobile Money',
             ),
             'default' => array('card', 'mobile-money'),
@@ -53,5 +53,29 @@ function lenco_payment_gateway_settings() {
             'description' => 'URL to redirect to after a failed payment.',
             'default' => '',
         ),
+        'currency' => array(
+            'title' => 'Currency',
+            'type' => 'select',
+            'description' => 'Select the currency for transactions.',
+            'options' => array(
+                'ZMW' => 'Zambian Kwacha',
+                'EUR' => 'Euro',
+                'GBP' => 'British Pound',
+                'USD' => 'US Dollar',
+                'ZAR' => 'South African Rand',
+            ),
+            'default' => 'ZMW',
+        ),
+        'environment' => array(
+            'title' => 'Environment',
+            'type' => 'select',
+            'description' => 'Select the environment for transactions.',
+            'options' => array(
+                'production' => 'Production',
+                'sandbox' => 'Sandbox',
+            ),
+            'default' => 'Sandbox',
+        ),
     );
 }
+?>
