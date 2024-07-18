@@ -8,7 +8,7 @@ The Lenco Payment Gateway Plugin for WooCommerce allows you to accept payments v
 
 ## Installation Guide
 
-1. Download the plugin as a ZIP file.
+1. Download the plugin as a ZIP file [here](https://github.com/LencoTech/lencopay-woocommerce-plugin/archive/refs/heads/main.zip).
 
 ### Upload the Plugin to WordPress:
 
@@ -43,3 +43,7 @@ The Lenco Payment Gateway Plugin for WooCommerce allows you to accept payments v
    - Select the currency for transactions (e.g., Zambian Kwacha, Euro, British Pound, US Dollar, South African Rand).
 8. **Environment:**
    - Choose the environment for transactions (Production or Sandbox). By default, the environment is set to sandbox.
+
+## License
+
+This plugin is licensed under the Apache License License.
