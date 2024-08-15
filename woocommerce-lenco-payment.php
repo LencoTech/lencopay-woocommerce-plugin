@@ -28,3 +28,11 @@ function init_lenco_payment_gateway() {
         return $methods;
     }
 }
+
+function lenco_plugin_action_links( $links ) {
+    $settings_link = array(
+    	'settings' => '<a href="' . admin_url( 'admin.php?page=wc-settings&tab=checkout&section=lenco' ) . '" title="View Settings">Settings</a>'
+    );
+    return array_merge( $settings_link, $links );
+}
+add_filter( 'plugin_action_links_' . plugin_basename( __FILE__ ), 'lenco_plugin_action_links' );
