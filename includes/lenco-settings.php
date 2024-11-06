@@ -31,6 +31,12 @@ function lenco_payment_gateway_settings() {
             'description' => 'Enter your Lenco public key.',
             'default' => 'pub-88dd921c0ecd73590459a1dd5a9343c77db0f3c344f222b9',
         ),
+        'secrete_key' => array(
+            'title' => 'Lenco Secrete Key',
+            'type' => 'text',
+            'description' => 'Enter your Lenco Secrete key.',
+            'default' => '993bed87f9d592566a6cce2cefd79363d1b7e95af3e1e6642b294ce5fc8c59f6',
+        ),
         'channels' => array(
             'title' => 'Payment Channels',
             'type' => 'multiselect',
