@@ -199,7 +199,7 @@ function update_order_after_payment()
 
         if ($order) {
             $order->payment_complete($order_id);
-            $order->update_status('completed');
+            $order->update_status('processing');
             $order->add_order_note('Payment completed via LencoPay. Reference: ' . $order_id);
             WC()->cart->empty_cart();
             $order->save();
