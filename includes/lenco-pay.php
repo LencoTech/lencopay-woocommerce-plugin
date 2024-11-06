@@ -91,8 +91,11 @@ function initiate_lenco_payment_script() {
                 }
 
                 $('body').on('click', '#place_order', function(e) {
-                    e.preventDefault();
-                    initiateLencoPayment();
+                    // Check if the selected payment method is Lenco
+                    if ($('input[name="payment_method"]:checked').val() === 'lenco') {
+                        e.preventDefault();
+                        initiateLencoPayment();
+                    }
                 });
             });
         </script>
