@@ -15,9 +15,9 @@ function lenco_payment_gateway_settings() {
         'title' => array(
             'title' => 'Title',
             'type' => 'text',
-            'description' => 'Title that the user sees during checkout.',
-            'default' => 'Lenco Pay',
-            'desc_tip' => true,
+            'description' => __('This controls the title which the user sees during checkout.', 'woocommerce'),
+            'default' => __('Pay with Lenco', 'woocommerce'),
+            'desc_tip'    => false,
         ),
         'description' => array(
             'title' => 'Description',

@@ -4,7 +4,7 @@ if (!defined('ABSPATH')) {
     exit;
 }
 
-class WC_Lenco_Payment_Gateway extends WC_Payment_Gateway {
+class WC_Gateway_Lenco extends WC_Payment_Gateway {
     private $public_key;
     private $secret_key;
     private $channels;
@@ -19,6 +19,7 @@ class WC_Lenco_Payment_Gateway extends WC_Payment_Gateway {
         $this->method_title = 'Lenco Payment';
         $this->method_description = 'Allows payments using Lenco gateway.';
         $this->has_fields = true;
+        $this->order_button_text = __('Pay with Lenco', 'lenco');
 
         $this->init_form_fields();
         $this->init_settings();
@@ -34,6 +35,7 @@ class WC_Lenco_Payment_Gateway extends WC_Payment_Gateway {
         $this->success_url = $this->get_option('success_url', home_url('/'));
         $this->failure_url = $this->get_option('failure_url', home_url('/'));
 
+        // Add action for saving settings
         add_action('woocommerce_update_options_payment_gateways_' . $this->id, array($this, 'process_admin_options'));
     }
 
@@ -47,4 +49,5 @@ class WC_Lenco_Payment_Gateway extends WC_Payment_Gateway {
         }
     }
 }
+
 ?>

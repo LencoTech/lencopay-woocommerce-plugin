@@ -22,13 +22,6 @@ function enqueue_lenco_scripts() {
 }
 add_action('wp_enqueue_scripts', 'enqueue_lenco_scripts');
 
-// Change the Place Order button text
-function change_place_order_button_text()
-{
-    return 'Pay with Lenco';
-}
-add_filter('woocommerce_order_button_text', 'change_place_order_button_text');
-
 // Hook to handle LencoPay initiation
 function initiate_lenco_payment_script() {
     if (is_checkout()) {

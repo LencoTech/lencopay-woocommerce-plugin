@@ -24,7 +24,7 @@ function init_lenco_payment_gateway() {
 
     add_filter('woocommerce_payment_gateways', 'add_lenco_gateway');
     function add_lenco_gateway($methods) {
-        $methods[] = 'WC_Lenco_Payment_Gateway';
+        $methods[] = 'WC_Gateway_Lenco';
         return $methods;
     }
 }
