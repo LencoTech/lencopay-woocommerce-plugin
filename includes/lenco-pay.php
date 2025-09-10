@@ -13,7 +13,6 @@ function enqueue_lenco_scripts() {
         wp_localize_script('lenco-inline', 'lenco_params', array(
             'public_key' => $options['public_key'],
             'success_url' => $options['success_url'],
-            'failure_url' => $options['failure_url'],
             'currency' => $options['currency'],
             'channels' => $options['channels'],
             'total_amount' => WC()->cart->total,
@@ -30,10 +29,8 @@ function initiate_lenco_payment_script() {
             jQuery(function($) {
                 function initiateLencoPayment() {
                     let billing_email = $('input#billing_email').val();
-                    let amount = lenco_params.total_amount;
-                    let currency = lenco_params.currency;
 
-                    if (!billing_email || !amount) {
+                    if (!billing_email || !lenco_params.total_amount) {
                         alert('Please complete all required fields.');
                         return;
                     }
@@ -44,41 +41,59 @@ function initiate_lenco_payment_script() {
                         data: {
                             action: 'create_order_before_payment',
                             billing_email: billing_email,
-                            amount: amount,
-                            currency: currency,
+                            amount: lenco_params.total_amount,
+                            currency: lenco_params.currency,
                         },
                         success: function(response) {
-                            var order_id = response.data;
-                            LencoPay.getPaid({
-                                key: lenco_params.public_key,
-                                reference: 'ref-' + Date.now(),
-                                email: billing_email,
-                                amount: amount,
-                                currency: currency,
-                                onSuccess: function(response) {
-                                    $.ajax({
-                                        type: 'POST',
-                                        url: '<?php echo admin_url('admin-ajax.php'); ?>',
-                                        data: {
-                                            action: 'update_order_after_payment',
-                                            order_id: order_id,
-                                            reference: response.reference,
-                                        },
-                                        success: function() {
-                                            window.location.href = lenco_params.success_url;
-                                        }
-                                    });
-                                },
-                                onError: function() {
-                                    alert('Payment failed. Please try again.');
-                                },
-                                onClose: function() {
-                                    console.log('Payment modal closed');
-                                }
-                            });
+                            if (!response.success) {
+                                alert(typeof response.data === "string" ? response.data : 'Failed to create order. Please try again.');
+                            }
+                            else {
+                                openPaymentWidget(response.data, billing_email);
+                            }
                         },
                         error: function() {
                             alert('Failed to create order. Please try again.');
+                        }
+                    });
+                }
+
+                function openPaymentWidget(order_id, billing_email) {
+                    LencoPay.getPaid({
+                        key: lenco_params.public_key,
+                        reference: 'ref-' + Date.now(),
+                        email: billing_email,
+                        amount: lenco_params.total_amount,
+                        currency: lenco_params.currency,
+                        channels: lenco_params.channels.length === 0 ? undefined : lenco_params.channels,
+                        onSuccess: function(response) {
+                            onLencoPaySuccess(order_id, response);
+                        },
+                        onError: function() {
+                            alert('Payment failed. Please try again.');
+                        },
+                        onClose: function() {
+                            console.log('Payment modal closed');
+                        }
+                    });
+                }
+
+                function onLencoPaySuccess(order_id, lencoPayResponse) {
+                    $.ajax({
+                        type: 'POST',
+                        url: '<?php echo admin_url('admin-ajax.php'); ?>',
+                        data: {
+                            action: 'update_order_after_payment',
+                            order_id: order_id,
+                            reference: lencoPayResponse.reference,
+                        },
+                        success: function(response) {
+                            if (!response.success) {
+                                alert(typeof response.data === "string" ? response.data : 'An Error Occurred.');
+                            }
+                            else {
+                                window.location.href = response.data.redirect_url;
+                            }
                         }
                     });
                 }
@@ -95,7 +110,6 @@ function initiate_lenco_payment_script() {
         <?php
     }
 }
-add_action('woocommerce_checkout_before_customer_details', 'initiate_lenco_payment_script');
 
 add_action('woocommerce_checkout_before_customer_details', 'initiate_lenco_payment_script');
 add_action('woocommerce_blocks_enqueue_cart_and_checkout_scripts', 'initiate_lenco_payment_script');
@@ -190,7 +204,7 @@ function update_order_after_payment()
 {
     if (!empty($_POST['order_id'])) {
         // Get order ID and payment reference
-        $order_id = intval($_POST['order_id']);
+        $order_id = $_POST['order_id'];
         $order = wc_get_order($order_id);
 
         if ($order) {
@@ -199,7 +213,12 @@ function update_order_after_payment()
             $order->add_order_note('Payment completed via LencoPay. Reference: ' . $order_id);
             WC()->cart->empty_cart();
             $order->save();
-            wp_send_json_success('Order updated after payment');
+            // wp_send_json_success('Order updated after payment');
+            $gateway = WC()->payment_gateways()->payment_gateways()['lenco'];
+            $redirect_url = $gateway->get_success_redirect_url($order);
+            wp_send_json_success(array(
+                'redirect_url' => $redirect_url,
+            ));
         } else {
             wp_send_json_error('Order not found');
         }

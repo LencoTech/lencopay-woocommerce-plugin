@@ -2,8 +2,8 @@
 /*
 Plugin Name: Lenco Payment Gateway
 Description: A WooCommerce plugin to integrate Lenco payment gateway.
-Version: 1.0
-Author: Mathews Musukuma
+Version: 1.1
+Author: Lenco Technologies Inc.
 */
 
 // Exit if accessed directly

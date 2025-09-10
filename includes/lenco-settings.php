@@ -7,7 +7,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 function lenco_payment_gateway_settings() {
     return array(
         'enabled' => array(
-            'title' => 'Enable/Disable',
+            'title' => 'Enable / Disable',
             'type' => 'checkbox',
             'label' => 'Enable Lenco Payment Gateway',
             'default' => 'yes'
@@ -23,7 +23,7 @@ function lenco_payment_gateway_settings() {
             'title' => 'Description',
             'type' => 'textarea',
             'description' => 'Description that the user sees during checkout.',
-            'default' => 'Pay securely using your credit card with Lenco.',
+            'default' => 'Pay securely using your debit or credit card with Lenco.',
         ),
         'public_key' => array(
             'title' => 'Lenco Public Key',
@@ -31,10 +31,10 @@ function lenco_payment_gateway_settings() {
             'description' => 'Enter your Lenco public key.',
             'default' => 'pub-88dd921c0ecd73590459a1dd5a9343c77db0f3c344f222b9',
         ),
-        'secrete_key' => array(
-            'title' => 'Lenco Secrete Key',
+        'secret_key' => array(
+            'title' => 'Lenco Secret Key',
             'type' => 'text',
-            'description' => 'Enter your Lenco Secrete key.',
+            'description' => 'Enter your Lenco Secret key.',
             'default' => '993bed87f9d592566a6cce2cefd79363d1b7e95af3e1e6642b294ce5fc8c59f6',
         ),
         'channels' => array(
@@ -48,15 +48,9 @@ function lenco_payment_gateway_settings() {
             'default' => array('card', 'mobile-money'),
         ),
         'success_url' => array(
-            'title' => 'Success Redirect URL',
+            'title' => 'Custom Redirect URL',
             'type' => 'text',
-            'description' => 'URL to redirect to after a successful payment.',
-            'default' => '',
-        ),
-        'failure_url' => array(
-            'title' => 'Failure Redirect URL',
-            'type' => 'text',
-            'description' => 'URL to redirect to after a failed payment.',
+            'description' => 'URL to redirect after a successful payment. <br>Leave this field blank, to use the WooCommerce thank you page.',
             'default' => '',
         ),
         'currency' => array(
@@ -80,7 +74,7 @@ function lenco_payment_gateway_settings() {
                 'production' => 'Production',
                 'sandbox' => 'Sandbox',
             ),
-            'default' => 'Sandbox',
+            'default' => 'sandbox',
         ),
     );
 }
